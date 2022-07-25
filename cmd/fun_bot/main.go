@@ -1,7 +1,13 @@
 package main
-import "fmt"
+import (
+  "fmt"
+  //"https://github.com/mbukarev/fun_bot/configs"
+  "https://github.com/mbukarev/fun_bot/pkg/Config"
+)
 
 func main(){
-  fmt.Print("Hello")
+  var cfg Config
+  cfg.getConfig("fun_bot/configs/config.yaml")
+  fmt.Print(cfg.tokenTelega)
 
 }
