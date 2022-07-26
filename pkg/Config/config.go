@@ -1,10 +1,10 @@
 package config
 import (
   "os"
-  "yaml"
+  "github.com/go-yaml/yaml"
 
 )
-type Config strcut{
+type Config struct{
   token string `envconfig:"tokenTelega"`
 }
 
