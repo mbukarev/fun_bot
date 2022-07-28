@@ -33,9 +33,10 @@ func main() {
 	// captured by existing handlers.
 
   	var (
-  		user = c.Sender()
+  		//user = c.Sender()
   		text = c.Text()
   	)
+    //fmt.Println(c.Message().MessageSig())
     fb, err := os.ReadFile("configs/pwords.txt") // just pass the file name
     if err != nil {
         fmt.Print(err)
@@ -46,16 +47,20 @@ func main() {
     for _, v := range words {
         if strings.Contains(str, v)  {
             text = strings.Replace(text, v, "test", -1)
-            b.Edit(c.Message, "ok")
+
+            errd := b.Delete(c.Message())
+            if errd != nil {
+                fmt.Print(errd)
+            }
         }
 
     }
   	// Use full-fledged bot's functions
   	// only if you need a result:
-    _, err = b.Send(user, text)
+    /*_, err = b.Send(user, text)
   	if err != nil {
   		return err
-  	}
+  	}*/
     //fmt.Print(msg)
   	// Instead, prefer a context short-hand:
   	return nil
