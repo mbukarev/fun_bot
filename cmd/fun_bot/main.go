@@ -1,24 +1,24 @@
 package main
 
 import (
-  "fmt"
-  "time"
-  "log"
-  "strings"
-  "os"
+	"fmt"
 	. "fun_bot/pkg/Config"
-  tele "gopkg.in/telebot.v3"
+	tele "gopkg.in/telebot.v3"
+	"log"
+	"os"
+	"strings"
+	"time"
 )
 
 func main() {
 	var cfg Config
-  fmt.Println("Start")
+	fmt.Println("Start")
 	cfg.GetConfig("configs/config.yaml")
-  pref := tele.Settings{
+	pref := tele.Settings{
 		Token:  cfg.Token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	}
-  b, err := tele.NewBot(pref)
+	b, err := tele.NewBot(pref)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -28,44 +28,35 @@ func main() {
 		return c.Send("Hello!")
 	})
 
-  b.Handle(tele.OnText, func(c tele.Context) error {
-	// All the text messages that weren't
-	// captured by existing handlers.
+	b.Handle(tele.OnText, func(c tele.Context) error {
+		text := c.Text()
+		//fmt.Println(c.Message().MessageSig())
+		fb, err := os.ReadFile("configs/pwords.txt") // just pass the file name
+		if err != nil {
+			fmt.Print(err)
+		}
+		str := string(fb) // convert content to a 'string'
+		words := strings.Split(text, " ")
+		bad := false
+		for _, v := range words {
+			if strings.Contains(str, v) {
+				text = strings.Replace(text, v, "*Пи-и-и*", -1)
+				bad = true
+			}
 
-  	var (
-  		//user = c.Sender()
-  		text = c.Text()
-  	)
-    //fmt.Println(c.Message().MessageSig())
-    fb, err := os.ReadFile("configs/pwords.txt") // just pass the file name
-    if err != nil {
-        fmt.Print(err)
-    }
-    str := string(fb) // convert content to a 'string'
-
-    words := strings.Split(text, " ")
-    for _, v := range words {
-        if strings.Contains(str, v)  {
-            text = strings.Replace(text, v, "test", -1)
-
-            errd := b.Delete(c.Message())
-            if errd != nil {
-                fmt.Print(errd)
-            }
-        }
-
-    }
-  	// Use full-fledged bot's functions
-  	// only if you need a result:
-    /*_, err = b.Send(user, text)
-  	if err != nil {
-  		return err
-  	}*/
-    //fmt.Print(msg)
-  	// Instead, prefer a context short-hand:
-  	return nil
-  })
+		}
+		if bad {
+			erred := b.Delete(c.Message())
+			if erred != nil {
+				fmt.Print(erred)
+			}
+			err := c.Send("Прилетело НЛО и удалило пахабное сообщение:\n" + text)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 
 	b.Start()
-	fmt.Print(cfg.Token)
 }
